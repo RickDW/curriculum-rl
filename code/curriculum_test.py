@@ -1,4 +1,4 @@
-import curriculum_policy as cp
+import curriculum_policy.curriculum_env as cenv
 
 import ray
 from ray import tune
@@ -23,11 +23,11 @@ from ray.rllib.agents.ppo import PPOTrainer
 
 ray.init()
 
-cp.register_rllib()
+cenv.register_rllib()
 
 env_name = "CartPole-v0"
 env_config = {}
-obs_space, action_space = cp.get_env_spaces(env_name)
+obs_space, action_space = cenv.get_env_spaces(env_name)
 
 agent_ids = {
     "learning_agent": "LA", 
@@ -59,7 +59,7 @@ tune.run(
         }
     },
     # TODO: implement the callbacks (train result, episode start)
-    callbacks=[cp.CurriculumCallback()],
+    callbacks=[cenv.CurriculumCallback()],
     stop={
         "mean_episode_reward": 200,
         "training_iteration": 20
