@@ -1,0 +1,8 @@
+seaborn
+matplotlib
+gym
+numpy
+tensorflow
+ray[default]
+ray[rllib]
+jupyterlab
