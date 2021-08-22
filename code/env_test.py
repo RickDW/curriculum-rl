@@ -24,14 +24,15 @@ class CartpoleTest(MultiAgentEnv):
         self.dones = {agentID: False for agentID in [self.agent1, self.agent2]}
 
     def reset(self):
-        obs_dict = {}
+        obs = {}
 
         for agentID, env in self.envs.items():
-            obs_dict[agentID] = env.reset()
+            obs[agentID] = env.reset()
 
         self.dones = {agentID: False for agentID in [self.agent1, self.agent2]}
+        self.counter = 0
 
-        return obs_dict
+        return obs
 
     def step(self, action_dict):
         obs = {}
