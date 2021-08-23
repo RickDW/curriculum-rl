@@ -1,3 +1,5 @@
 venv
 .vscode
 .python-version
+
+ray_results

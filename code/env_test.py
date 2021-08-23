@@ -4,11 +4,13 @@ through multiple episodes while the MultiAgentEnv is not reset in between.
 """
 
 import gym
+import ray
+from ray import tune
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 from ray.tune import register_env
 
 
-class CartpoleTest(MultiAgentEnv):
+class CartPoleTest(MultiAgentEnv):
     # agent IDs
     agent1 = "ag1"
     agent2 = "ag2"
@@ -55,13 +57,13 @@ class CartpoleTest(MultiAgentEnv):
             if done[agentID]:
                 self.dones[agentID] = True
 
-            # here comes the non-standard behaviour
-
+            # terminate agent one's episode after five steps
             if agentID == self.agent1 and self.counter == 5:
-                assert not self.dones[agentID]
-                # stop this agent one's episode
+                assert not self.dones[agentID] # might not hold when policies have just been initialized
+                # stop agent one's episode
                 self.dones[agentID] = done[agentID] = True
 
+        # start a new episode for agent one after ten steps
         if self.counter == 10:
             # agent one should not be active
             assert self.agent1 not in action_dict
@@ -74,3 +76,37 @@ class CartpoleTest(MultiAgentEnv):
         done["__all__"] = all(self.dones.values())
             
         return obs, reward, done, info
+
+
+register_env("CartPoleTest", lambda config: CartPoleTest())
+
+
+dummy_env = gym.make("CartPole-v0")
+obs_space = dummy_env.observation_space
+action_space = dummy_env.action_space
+ray.init()
+
+tune.run(
+    "PPO",
+    name="sub_episode_env",
+    local_dir="ray_results",
+    config={
+        "env": "CartPoleTest",
+        "multiagent": {
+            "policies": {
+                agent_id: (None, obs_space, action_space, {})
+                for agent_id in [CartPoleTest.agent1, CartPoleTest.agent2]
+            },
+            "policy_mapping_fn": (
+                lambda agent_id, episode, **kwargs: agent_id),
+        },
+        "num_gpus": 0,
+        "num_workers": 1
+    },
+    stop={
+        "training_iteration": 10,
+        "episode_reward_mean": 200
+    }
+)
+
+ray.shutdown()
