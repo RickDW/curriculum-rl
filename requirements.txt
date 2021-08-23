@@ -2,6 +2,5 @@ seaborn
 matplotlib
 gym
 tensorflow
-ray[default]
-ray[rllib]
+ray[default, rllib]
 jupyterlab

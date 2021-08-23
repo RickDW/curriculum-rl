@@ -64,12 +64,13 @@ if __name__ == "__main__":
 
     results = tune.run(
         rllib.agents.ppo.PPOTrainer,
+        name='curriculum-api',
+        local_dir='ray_results',
         config=config,
         stop={
             "episode_reward_mean": 200, # maximum reward in the cartpole environment
             "training_iteration": 50 # failsafe in case the agent cannot achieve the maximum reward
         },
         callbacks=[TBXLoggerCallback()],
-        local_dir='~/Museum/mllab/curriculum-rl/results',
         verbose=2
     )
