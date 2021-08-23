@@ -1,8 +1,24 @@
-import curriculum_policy.curriculum_env as cenv
+import curriculum_policy.curriculum_env_old as cenv
 
 import ray
 from ray import tune
 from ray.rllib.agents.ppo import PPOTrainer
+
+# TODO: Ignore the current design that's based on multi-agent setups and
+#       nest a Trainer inside a single-agent curriculum environment.
+#       The multi-agent approach could potentially work by using multiple agent
+#       id's to fix the 'revival' issue, but there would still be the issue of
+#       having to create custom trainers as soon as the curriculum agent and
+#       the learning agent's training algorithms are not the same. This makes
+#       the entire setup a lot less user-friendly and needlessly time-consuming
+#       since you'd have to implement algorithms that are already provided by
+#       RLlib. Even if this turns out to be relatively simple, it requires a
+#       lot of advanced RLlib features which would probably cause a lot of 
+#       researchers to ditch it and try something else.
+#
+#       My main concerns about this new approach are about the integration with
+#       tune which should cover at least the basics such as logging,
+#       hyperparameter sweeps, and experiment resource management.
 
 # TODO: Implement curriculum policy learning stepwise to prevent wasting time
 # * implement the next_task() functionality through callbacks
