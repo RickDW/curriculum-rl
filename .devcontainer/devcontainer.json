@@ -9,6 +9,9 @@
 	// Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
 	"dockerFile": "../Dockerfile",
 
+	// arguments to pass to the docker run command
+	"runArgs": ["--gpus", "all"],
+
 	// Shut down the container when VS code closes
 	"shutdownAction": "stopContainer",
 

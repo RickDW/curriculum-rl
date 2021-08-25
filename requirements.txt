@@ -1,5 +1,4 @@
 seaborn
-matplotlib
 gym
 tensorflow
 ray[default, rllib]

@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 # For more information, please refer to https://aka.ms/vscode-docker-python
 FROM pytorch/pytorch:1.9.0-cuda11.1-cudnn8-runtime
 
@@ -20,8 +22,7 @@ RUN apt-get install -y git
 
 # Install pip requirements
 COPY requirements.txt .
-RUN pip install -r requirements.txt && pip cache purge
-# Purging the cache has a minor effect on the image size, but every little bit helps
+RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
 
 # During debugging, this entry point will be overridden. For more information, please refer to https://aka.ms/vscode-docker-python-debug
 CMD ["python"]
