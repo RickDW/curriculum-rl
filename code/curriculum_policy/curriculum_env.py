@@ -11,6 +11,13 @@ from typing import Any, Union, Optional, Callable
 
 
 class CurriculumEnv(gym.Env):
+    """
+    Allows a curriculum agent to interact with its learning agent.
+
+    This environment additionally handles the training process of the learning
+    agent, which runs inside the environment.
+    """
+
     def __init__(
             self,
             trainer: Union[str, Trainer],
@@ -58,7 +65,7 @@ class CurriculumEnv(gym.Env):
         return self.get_state()
 
     def step(self, action):
-        # set up the next task environment for the learning agent based on the
+        #  TODO set up the next task environment for the learning agent based on the
         # provided action. Once a training iteration is done, return the results
         # and the state of the learning agent
         results = self.trainer_instance.train()
