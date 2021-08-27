@@ -1,8 +1,9 @@
 import gym
 import numpy as np
 
-from state import weight_vector
-from rewards import training_duration
+# TODO: fix imports
+from .state import weight_vector
+from .rewards import training_duration
 
 from ray.rllib.agents.registry import get_trainer_class
 
@@ -15,7 +16,7 @@ class LearningEnv(gym.Env):
     """
     Abstract environment class that is used together with CurriculumEnv.
 
-    # TODO: add documentation for curriculum_action_space, update()
+    # TODO: add documentation for mandatory override of curriculum_action_space, update()
     """
 
     def __init__(self):
@@ -42,9 +43,9 @@ def construct_default_spaces(trainer: Trainer, env_cls: Type[LearningEnv]) \
 
     action_space = env_cls.curriculum_action_space
 
-    reward_space = gym.spaces.Box(low=-np.inf, high=np.inf, shape=(1,))
+    reward_range = (-np.inf, np.inf)
 
-    return observation_space, action_space, reward_space
+    return observation_space, action_space, reward_range
 
 
 class CurriculumEnv(gym.Env):
@@ -64,7 +65,7 @@ class CurriculumEnv(gym.Env):
             state_preprocessor: Callable[[Trainer], Any] = weight_vector,
             curriculum_rewards: Callable[[ResultDict], int] = training_duration,
             obs_action_reward_definition: \
-                Callable[[LearningEnv, Trainer], Tuple[gym.Space, gym.Space, gym.Space]] = \
+                Callable[[LearningEnv, Trainer], Tuple[gym.Space, gym.Space, tuple]] = \
                 construct_default_spaces
             ):
         
@@ -91,7 +92,7 @@ class CurriculumEnv(gym.Env):
         env_cls = trainer_config["env"]
         # TODO remove temporary workaround, use the tune registry instead of explicit class
         assert isinstance(env_cls, LearningEnv)
-        self.observation_space, self.action_space, self.reward_space = \
+        self.observation_space, self.action_space, self.reward_range = \
             obs_action_reward_definition(self.trainer, env_cls)
 
 

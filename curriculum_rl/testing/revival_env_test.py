@@ -78,35 +78,36 @@ class CartPoleTest(MultiAgentEnv):
         return obs, reward, done, info
 
 
-register_env("CartPoleTest", lambda config: CartPoleTest())
+if __name__ == "__main__":
+    register_env("CartPoleTest", lambda config: CartPoleTest())
 
 
-dummy_env = gym.make("CartPole-v0")
-obs_space = dummy_env.observation_space
-action_space = dummy_env.action_space
-ray.init()
+    dummy_env = gym.make("CartPole-v0")
+    obs_space = dummy_env.observation_space
+    action_space = dummy_env.action_space
+    ray.init()
 
-tune.run(
-    "PPO",
-    name="sub_episode_env",
-    local_dir="ray_results",
-    config={
-        "env": "CartPoleTest",
-        "multiagent": {
-            "policies": {
-                agent_id: (None, obs_space, action_space, {})
-                for agent_id in [CartPoleTest.agent1, CartPoleTest.agent2]
+    tune.run(
+        "PPO",
+        name="sub_episode_env",
+        local_dir="ray_results",
+        config={
+            "env": "CartPoleTest",
+            "multiagent": {
+                "policies": {
+                    agent_id: (None, obs_space, action_space, {})
+                    for agent_id in [CartPoleTest.agent1, CartPoleTest.agent2]
+                },
+                "policy_mapping_fn": (
+                    lambda agent_id, episode, **kwargs: agent_id),
             },
-            "policy_mapping_fn": (
-                lambda agent_id, episode, **kwargs: agent_id),
+            "num_gpus": 0,
+            "num_workers": 1
         },
-        "num_gpus": 0,
-        "num_workers": 1
-    },
-    stop={
-        "training_iteration": 10,
-        "episode_reward_mean": 200
-    }
-)
+        stop={
+            "training_iteration": 10,
+            "episode_reward_mean": 200
+        }
+    )
 
-ray.shutdown()
+    ray.shutdown()

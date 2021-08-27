@@ -37,49 +37,50 @@ from ray.rllib.agents.ppo import PPOTrainer
 
 # TODO: standardize the config setup?
 
-ray.init()
+if __name__ == "__main__":
+    ray.init()
 
-cenv.register_rllib()
+    cenv.register_rllib()
 
-env_name = "CartPole-v0"
-env_config = {}
-obs_space, action_space = cenv.get_env_spaces(env_name)
+    env_name = "CartPole-v0"
+    env_config = {}
+    obs_space, action_space = cenv.get_env_spaces(env_name)
 
-agent_ids = {
-    "learning_agent": "LA", 
-    "curriculum_agent": "AC"
-}
-
-
-tune.run(
-    PPOTrainer,
-    config={
-        "env": "CurriculumWrapper",
-        "env_config": {
-            "env_name": env_name,
-            "env_config": env_config,
-            "agentIDs": agent_ids
-        },
-        "multiagent": {
-            "policies": {
-                agent_ids["learning_agent"]: (
-                    # (policy_cls, ..., ..., policy_config)
-                    None, obs_space, action_space, {}
-                    # None means default policy class, defined in trainer
-                ),
-                agent_ids["curriculum_agent"]: (
-                    None, obs_space, action_space, {}
-                )
-            },
-            "policy_mapping_fn": lambda agent_id, **kwargs: agent_id
-        }
-    },
-    # TODO: implement the callbacks (train result, episode start)
-    callbacks=[cenv.CurriculumCallback()],
-    stop={
-        "mean_episode_reward": 200,
-        "training_iteration": 20
+    agent_ids = {
+        "learning_agent": "LA", 
+        "curriculum_agent": "AC"
     }
-)
 
-ray.shutdown()
+
+    tune.run(
+        PPOTrainer,
+        config={
+            "env": "CurriculumWrapper",
+            "env_config": {
+                "env_name": env_name,
+                "env_config": env_config,
+                "agentIDs": agent_ids
+            },
+            "multiagent": {
+                "policies": {
+                    agent_ids["learning_agent"]: (
+                        # (policy_cls, ..., ..., policy_config)
+                        None, obs_space, action_space, {}
+                        # None means default policy class, defined in trainer
+                    ),
+                    agent_ids["curriculum_agent"]: (
+                        None, obs_space, action_space, {}
+                    )
+                },
+                "policy_mapping_fn": lambda agent_id, **kwargs: agent_id
+            }
+        },
+        # TODO: implement the callbacks (train result, episode start)
+        callbacks=[cenv.CurriculumCallback()],
+        stop={
+            "mean_episode_reward": 200,
+            "training_iteration": 20
+        }
+    )
+
+    ray.shutdown()
