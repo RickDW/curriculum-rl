@@ -105,7 +105,7 @@ if __name__ == "__main__":
             "num_workers": 1
         },
         stop={
-            "training_iteration": 10,
+            "training_iteration": 5,
             "episode_reward_mean": 200
         }
     )

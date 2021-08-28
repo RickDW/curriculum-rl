@@ -2,8 +2,8 @@ import gym
 import numpy as np
 
 # TODO: fix imports
-from .state import weight_vector
-from .rewards import training_duration
+from curriculum_rl.curriculum_policy.state import weight_vector
+from curriculum_rl.curriculum_policy.rewards import agent_timesteps_total
 
 from ray.rllib.agents.registry import get_trainer_class
 
@@ -63,7 +63,7 @@ class CurriculumEnv(gym.Env):
             target_task: Any,
             state_representation: str = "policy_weights",
             state_preprocessor: Callable[[Trainer], Any] = weight_vector,
-            curriculum_rewards: Callable[[ResultDict], int] = training_duration,
+            curriculum_rewards: Callable[[ResultDict], int] = agent_timesteps_total,
             obs_action_reward_definition: \
                 Callable[[LearningEnv, Trainer], Tuple[gym.Space, gym.Space, tuple]] = \
                 construct_default_spaces
@@ -97,8 +97,13 @@ class CurriculumEnv(gym.Env):
 
 
     def reset(self):
+        # keep track of how many tasks have been trained on
+        self.task_count = 0
+
         self.init_trainer()
+
         return self.get_state()
+
 
     def step(self, action):
         self.update_task(action)
@@ -107,8 +112,11 @@ class CurriculumEnv(gym.Env):
 
         state = self.get_state()
         reward = self.curriculum_rewards(results)
-        # TODO: implement done check 
-        done = False
+
+        # TODO: implement a good done check 
+        self.task_count += 1
+        done = self.task_count >= 5
+
         info = {}
 
         return state, reward, done, info
