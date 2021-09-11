@@ -1,2 +1,5 @@
 .vscode
 ray_results
+wandb
+api_key.txt
+xvfb.log

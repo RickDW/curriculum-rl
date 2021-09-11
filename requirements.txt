@@ -1,5 +1,6 @@
 seaborn
-gym
+gym[classic_control]
 tensorflow
 ray[default, rllib]
 jupyterlab
+wandb
