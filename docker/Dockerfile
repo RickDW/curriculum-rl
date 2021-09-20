@@ -28,7 +28,9 @@ RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
 # RUN chmod 777 /usr/local/bin/entrypoint.sh
 # ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
+# add xvfb script wrapper and make it executable
 COPY docker/xvfb_python.sh /usr/local/bin/xvfb_python.sh
+RUN chmod 777 /usr/local/bin/xvfb_python.sh
 
 # During debugging, this entry point will be overridden. For more information, please refer to https://aka.ms/vscode-docker-python-debug
 CMD ["python"]

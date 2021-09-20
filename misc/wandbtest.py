@@ -1,8 +1,9 @@
+from wandb import Video
+
 import ray
 from ray import tune
 from ray.tune.integration.wandb import WandbLoggerCallback
 from ray.rllib.agents.callbacks import DefaultCallbacks
-from wandb import Video
 
 from typing import Dict, Optional
 from ray.rllib.evaluation import RolloutWorker
@@ -16,6 +17,7 @@ from ray.rllib.utils.typing import PolicyID
 # gym.wrappers.Monitor
 
 
+# taken from Griddly's implementation, not used here
 class VideoCallback(DefaultCallbacks):
     def on_episode_end(self, *, worker: "RolloutWorker", base_env: BaseEnv, 
             policies: Dict[PolicyID, Policy], episode: MultiAgentEpisode, 
@@ -47,7 +49,10 @@ analysis = tune.run(
 
         "num_workers": 1,
         "num_envs_per_worker": 1,
-        "record_env": "videos"
+        "record_env": "videos" # record envs and save them to the "videos" directory
+        # TODO: gym.wrappers.monitoring.video_recorder.ImageEncoder.close() never gets called, why?
+        # -> it seems that wandb's ImageEncoder modification is not applied in the workers, needs a fix
+        # TODO: look into using Monitor's video_callable argument to limit video recording
 
         # "evaluation_interval": 1, # evaluate every training iteration
         # "evaluation_num_episodes": 1, # stop evaluation after one episode
@@ -60,11 +65,11 @@ analysis = tune.run(
         WandbLoggerCallback(
             project="rllib_test",
             api_key_file="/workspaces/curriculum-rl/api_key.txt",
-            monitor_gym=True # this calls wandb.gym.monitor() which modifies gym's Monitor wrapper
+            monitor_gym=True # calls wandb.gym.monitor() -> gym's Monitor wrapper is modified to automatically log videos
         )
     ],
     stop={
-        "training_iteration": 2
+        "training_iteration": 1
     },
     local_dir="ray_results",
     verbose=1
